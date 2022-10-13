@@ -1,0 +1,40 @@
+﻿Main.obj : error LNK2019: símbolo externo glewInit sin resolver al que se hace referencia en la función main
+Main.obj : error LNK2019: símbolo externo glfwInit sin resolver al que se hace referencia en la función main
+Main.obj : error LNK2019: símbolo externo glfwTerminate sin resolver al que se hace referencia en la función main
+Main.obj : error LNK2019: símbolo externo glfwWindowHint sin resolver al que se hace referencia en la función main
+Main.obj : error LNK2019: símbolo externo glfwCreateWindow sin resolver al que se hace referencia en la función main
+Main.obj : error LNK2019: símbolo externo glfwDestroyWindow sin resolver al que se hace referencia en la función main
+Main.obj : error LNK2019: símbolo externo glfwWindowShouldClose sin resolver al que se hace referencia en la función main
+Main.obj : error LNK2019: símbolo externo glfwSetWindowShouldClose sin resolver al que se hace referencia en la función "void __cdecl updateInput(struct GLFWwindow *)" (?updateInput@@YAXPEAUGLFWwindow@@@Z)
+Main.obj : error LNK2019: símbolo externo glfwGetFramebufferSize sin resolver al que se hace referencia en la función main
+Main.obj : error LNK2019: símbolo externo glfwSetFramebufferSizeCallback sin resolver al que se hace referencia en la función main
+Main.obj : error LNK2019: símbolo externo glfwPollEvents sin resolver al que se hace referencia en la función main
+Main.obj : error LNK2019: símbolo externo glfwGetKey sin resolver al que se hace referencia en la función "void __cdecl updateInput(struct GLFWwindow *)" (?updateInput@@YAXPEAUGLFWwindow@@@Z)
+Main.obj : error LNK2019: símbolo externo glfwMakeContextCurrent sin resolver al que se hace referencia en la función main
+Main.obj : error LNK2019: símbolo externo glfwSwapBuffers sin resolver al que se hace referencia en la función main
+Main.obj : error LNK2001: símbolo externo __glewActiveTexture sin resolver
+Main.obj : error LNK2001: símbolo externo __glewBindBuffer sin resolver
+Main.obj : error LNK2001: símbolo externo __glewBufferData sin resolver
+Main.obj : error LNK2001: símbolo externo __glewGenBuffers sin resolver
+Main.obj : error LNK2001: símbolo externo __glewAttachShader sin resolver
+Main.obj : error LNK2001: símbolo externo __glewCompileShader sin resolver
+Main.obj : error LNK2001: símbolo externo __glewCreateProgram sin resolver
+Main.obj : error LNK2001: símbolo externo __glewCreateShader sin resolver
+Main.obj : error LNK2001: símbolo externo __glewDeleteProgram sin resolver
+Main.obj : error LNK2001: símbolo externo __glewDeleteShader sin resolver
+Main.obj : error LNK2001: símbolo externo __glewEnableVertexAttribArray sin resolver
+Main.obj : error LNK2001: símbolo externo __glewGetProgramInfoLog sin resolver
+Main.obj : error LNK2001: símbolo externo __glewGetProgramiv sin resolver
+Main.obj : error LNK2001: símbolo externo __glewGetShaderInfoLog sin resolver
+Main.obj : error LNK2001: símbolo externo __glewGetShaderiv sin resolver
+Main.obj : error LNK2001: símbolo externo __glewGetUniformLocation sin resolver
+Main.obj : error LNK2001: símbolo externo __glewLinkProgram sin resolver
+Main.obj : error LNK2001: símbolo externo __glewShaderSource sin resolver
+Main.obj : error LNK2001: símbolo externo __glewUniformMatrix4fv sin resolver
+Main.obj : error LNK2001: símbolo externo __glewUseProgram sin resolver
+Main.obj : error LNK2001: símbolo externo __glewVertexAttribPointer sin resolver
+Main.obj : error LNK2001: símbolo externo __glewCreateVertexArrays sin resolver
+Main.obj : error LNK2001: símbolo externo __glewBindVertexArray sin resolver
+D:\UG\5to Sem\Graficas Por Computadora\TheMuppet\TheMuppet\Dependencies\GLEW\lib\Release\Win32\glew32s.lib : warning LNK4272: el tipo de máquina de biblioteca 'x86' está en conflicto con el tipo de máquina de destino 'x64'
+D:\UG\5to Sem\Graficas Por Computadora\TheMuppet\TheMuppet\Dependencies\GLFW\lib\glfw3.lib : warning LNK4272: el tipo de máquina de biblioteca 'x86' está en conflicto con el tipo de máquina de destino 'x64'
+D:\UG\5to Sem\Graficas Por Computadora\TheMuppet\TheMuppet\x64\Debug\TheMuppet.exe : fatal error LNK1120: 37 externos sin resolver

@@ -1,11 +1,17 @@
 #include "header.hpp"
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
+void frameBuffer_resize_callback(GLFWwindow* window, int fbW, int fbH) {
+    glViewport(0, 0, fbW, fbH);
+}
 
 Vertex vertices[] = {
-    // Posicion                         // Color                        //Texcoords
-    glm::vec3(-0.5f, 0.5f, 0.f),        glm::vec3(1.f, 0.f, 0.f),       glm::vec2(0.f, 1.f),
-    glm::vec3(-0.5f, -0.5f, 0.f),       glm::vec3(0.f, 1.f, 0.f),       glm::vec2(0.f, 0.f),
-    glm::vec3(0.5f, -0.5f, 0.f),        glm::vec3(0.f, 0.f, 1.f),       glm::vec2(1.f, 0.f),
-    glm::vec3(0.5f, 0.5f, 0.f),         glm::vec3(1.f, 0.f, 1.f),       glm::vec2(1.f, 1.f)
+    // Posicion                         // Color                        //Texcoords                 // Normal
+    glm::vec3(-0.5f, 0.5f, 0.f),        glm::vec3(1.f, 0.f, 0.f),       glm::vec2(0.f, 1.f),        glm::vec3(0.f, 0.f, -1.f),
+    glm::vec3(-0.5f, -0.5f, 0.f),       glm::vec3(0.f, 1.f, 0.f),       glm::vec2(0.f, 0.f),        glm::vec3(0.f, 0.f, -1.f),
+    glm::vec3(0.5f, -0.5f, 0.f),        glm::vec3(0.f, 0.f, 1.f),       glm::vec2(1.f, 0.f),        glm::vec3(0.f, 0.f, -1.f),
+    glm::vec3(0.5f, 0.5f, 0.f),         glm::vec3(1.f, 0.f, 1.f),       glm::vec2(1.f, 1.f),        glm::vec3(0.f, 0.f, -1.f)
 };
 
 unsigned nrOfVertices = sizeof(vertices) / sizeof(Vertex);
@@ -120,6 +126,40 @@ void updateInput(GLFWwindow* window) {
 
 }
 
+void updateInput(GLFWwindow* window, glm::vec3& position, glm::vec3& rotation, glm::vec3& scale) {
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+        position.x -= 0.001f;
+    }
+    else if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+        position.y -= 0.001f;
+    } 
+    else if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+        position.x += 0.001f;
+    }
+    else if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+        position.y += 0.001f;
+    }
+    else if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
+        position.z += 0.001f;
+    }
+    else if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) {
+        position.z -= 0.001f;
+    }
+    else if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS) {
+        rotation.y += 0.05f;
+    }
+    else if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS) {
+        rotation.y -= 0.05f;
+    }
+    else if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS) {
+        scale += 0.005f;
+    }
+    else if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS) {
+        scale -= 0.005f;
+    }
+
+}
+
 int main(void) {
 
     // Inicalizar GLFW
@@ -132,10 +172,11 @@ int main(void) {
     const int WindowHeigth = 640;
     int framebufferWidth = 0;
     int framebufferHeigth = 0;
-
+    
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 4);
-    glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+    glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
 
     window = glfwCreateWindow(WindowWidth, WindowHeigth, "Hello World", NULL, NULL);
     if (!window)
@@ -144,8 +185,13 @@ int main(void) {
         return -1;
     }
 
+    // Ventana rezisable
+
+    glfwSetFramebufferSizeCallback(window, frameBuffer_resize_callback);
+
+    // Ventana no rezisable
     glfwGetFramebufferSize(window, &framebufferWidth, &framebufferHeigth);
-    glViewport(0, 0, framebufferWidth, framebufferHeigth);
+    //glViewport(0, 0, framebufferWidth, framebufferHeigth);
 
     // Crear un contexto de ventana
     glfwMakeContextCurrent(window);
@@ -211,20 +257,96 @@ int main(void) {
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, texcoord));
     glEnableVertexAttribArray(2);
 
+    //Texcoord
+    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, normal));
+    glEnableVertexAttribArray(3);
+
     glBindVertexArray(0);
 
     // Texture init
 
-    int image_width = 0;
-    int image_height = 0;
-   
+    int image_width, image_height, nrChannels;
+    unsigned char* image = stbi_load("Resources/Textures/Kirby.png", &image_width, &image_height, &nrChannels, 0);
+    GLuint texture0;
+    glGenTextures(1, &texture0);
+    glBindTexture(GL_TEXTURE_2D, texture0);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+    if (image) {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image_width, image_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    }
+    else {
+        std::cout << "No se pudo cargar la imagen\n";
+    }
+    glActiveTexture(0);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    stbi_image_free(image);
+
+    // Model Matrix
+    glm::vec3 position(0.f);
+    glm::vec3 rotation(0.f);
+    glm::vec3 scale(1.f);
+    
+    glm::mat4 ModelMatrix(1.f);
+    ModelMatrix = glm::translate(ModelMatrix, position);
+    ModelMatrix = glm::rotate(ModelMatrix, glm::radians(rotation.x), glm::vec3(1.f, 0.f, 0.f));
+    ModelMatrix = glm::rotate(ModelMatrix, glm::radians(rotation.y), glm::vec3(0.f, 1.f, 0.f));
+    ModelMatrix = glm::rotate(ModelMatrix, glm::radians(rotation.z), glm::vec3(0.f, 0.f, 1.f));
+    ModelMatrix = glm::scale(ModelMatrix, scale);
+    
+    // View Matrix
+
+    // Camara
+    glm::vec3 worldUp(0.f, 1.f, 0.f);
+    glm::vec3 camFront(0.f, 0.f, -1.f);
+    glm::vec3 camPosition(0.f, 0.f, 1.f);
+
+    glm::mat4 ViewMatrix(1.f);
+    ViewMatrix = glm::lookAt(camPosition, camPosition + camFront, worldUp);
+
+    // Projection Matrix
+    
+    float fov = 90.f;
+    float nearPlane = 0.1f;
+    float farPlane = 1000.f;
+    glm::mat4 ProjectionMatrix(1.f);
+    ProjectionMatrix = glm::perspective(glm::radians(fov), static_cast<float>(framebufferWidth)/framebufferHeigth, nearPlane, farPlane);
+
+    // Luces
+    glm::vec3 lightPos0(0.f, 0.f, 1.f);
+
+
+
+    // Mandar las matrices al shader
+
+    glUseProgram(core_program);
+    glUniformMatrix4fv(glGetUniformLocation(core_program, "ModelMatrix"), 1, GL_FALSE, glm::value_ptr(ModelMatrix));
+    glUniformMatrix4fv(glGetUniformLocation(core_program, "ViewMatrix"), 1, GL_FALSE, glm::value_ptr(ViewMatrix));
+    glUniformMatrix4fv(glGetUniformLocation(core_program, "ProjectionMatrix"), 1, GL_FALSE, glm::value_ptr(ProjectionMatrix));
+    
+    // Mandar luz y posicion de la camara al shader
+    glUniform3fv(glGetUniformLocation(core_program, "lightPos0"), 1, glm::value_ptr(lightPos0));
+    glUniform3fv(glGetUniformLocation(core_program, "cameraPos"), 1, glm::value_ptr(camPosition));
+
+    glUseProgram(0);
+
     // Main loop
     while (!glfwWindowShouldClose(window))
     {
         // Update input
         glfwPollEvents();
+        
         // Update
         updateInput(window);
+
+        // Actualizar posicion, rotacion, escala
+
+        updateInput(window, position, rotation, scale);
+        
         // Draw
 
         // Draw_clear
@@ -236,6 +358,35 @@ int main(void) {
         glUseProgram(core_program);
 
         // Active texture
+        
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, texture0);
+
+        glUniform1i(glGetUniformLocation(core_program, "texture0"), 0);
+
+        // Update uniforms
+
+        // Mover, rotar y escalar
+
+        // Aplicar cambios
+        ModelMatrix = glm::mat4(1.f);
+        ModelMatrix = glm::translate(ModelMatrix, position);
+        ModelMatrix = glm::rotate(ModelMatrix, glm::radians(rotation.x), glm::vec3(1.f, 0.f, 0.f));
+        ModelMatrix = glm::rotate(ModelMatrix, glm::radians(rotation.y), glm::vec3(0.f, 1.f, 0.f));
+        ModelMatrix = glm::rotate(ModelMatrix, glm::radians(rotation.z), glm::vec3(0.f, 0.f, 1.f));
+        ModelMatrix = glm::scale(ModelMatrix, scale);
+
+        //Actualizar
+        glUniformMatrix4fv(glGetUniformLocation(core_program, "ModelMatrix"), 1, GL_FALSE, glm::value_ptr(ModelMatrix));
+
+        // Mantener relacionde aspecto
+        glfwGetFramebufferSize(window, &framebufferWidth, &framebufferHeigth);
+
+        ProjectionMatrix = glm::mat4(1.f);
+        ProjectionMatrix = glm::perspective(glm::radians(fov), static_cast<float>(framebufferWidth) / framebufferHeigth, nearPlane, farPlane);
+
+        // Actualizar
+        glUniformMatrix4fv(glGetUniformLocation(core_program, "ProjectionMatrix"), 1, GL_FALSE, glm::value_ptr(ProjectionMatrix));
         
 
         // Bind vertex array object
@@ -262,4 +413,4 @@ int main(void) {
     return 0;
 }
 
-#include "header.cpp"
+//#include "header.cpp"

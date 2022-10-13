@@ -15,12 +15,14 @@
 #include <mat4x4.hpp> 
 #include <gtc/matrix_transform.hpp>
 #include <gtc/type_ptr.hpp>
+#include "Shader.h"
 
 
 struct Vertex {
 	glm::vec3 position;
 	glm::vec3 color;
 	glm::vec2 texcoord;
+	glm::vec3 normal;
 };
 
 // Shaders
