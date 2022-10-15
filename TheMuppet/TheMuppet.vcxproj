@@ -156,8 +156,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SRC\header.hpp" />
+    <ClInclude Include="SRC\Material.h" />
     <ClInclude Include="SRC\Shader.h" />
     <ClInclude Include="SRC\stb_image.h" />
+    <ClInclude Include="SRC\Texture.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Shaders\fragment_core.glsl" />

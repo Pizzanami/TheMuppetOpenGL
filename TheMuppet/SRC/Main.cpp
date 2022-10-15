@@ -1,6 +1,5 @@
-#include "header.hpp"
 #define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
+#include "header.hpp"
 
 void frameBuffer_resize_callback(GLFWwindow* window, int fbW, int fbH) {
     glViewport(0, 0, fbW, fbH);
@@ -22,102 +21,6 @@ GLuint indices[] = {
 };
 
 unsigned nrOfIndices = sizeof(indices) / sizeof(GLuint);
-
-bool loadShaders(GLuint& program) {
-    bool LoadSuccess = true;
-    char infoLog[512];
-    GLint success;
-    std::ifstream in_file;
-    std::string temp = "";
-    std::string src = "";
-
-    // Vertex
-    in_file.open("Resources\\Shaders\\vertex_core.glsl");
-    if (in_file.is_open()) {
-        while (std::getline(in_file, temp)) {
-            src += temp + "\n";
-        }
-    }
-    else {
-        std::cout << "ERROR: no se pudo abrir el vertex shader";
-        LoadSuccess = false;
-    }
-    in_file.close();
-
-    // Crear y compilar VertexShader
-
-    GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    const GLchar* vertSrc = src.c_str();
-    glShaderSource(vertexShader, 1, &vertSrc, NULL);
-    glCompileShader(vertexShader);
-
-    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-
-    if (!success) {
-        glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-        std::cout << "ERROR::LOADSHADERS::COULD_NOT_COMPILE_VERTEX_SHADER" << "\n";
-        std::cout << infoLog << "\n";
-        LoadSuccess = false;
-    }
-
-    // Fragment Shader
-
-    temp = "";
-    src = "";
-
-    in_file.open("Resources\\Shaders\\fragment_core.glsl");
-    if (in_file.is_open()) {
-        while (std::getline(in_file, temp)) {
-            src += temp + "\n";
-        }
-    }
-    else {
-        std::cout << "ERROR: no se pudo abrir el fragment shader";
-        LoadSuccess = false;
-    }
-    in_file.close();
-
-    // Crear y compilar VertexShader
-
-    GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    const GLchar* fragSrc = src.c_str();
-    glShaderSource(fragmentShader, 1, &fragSrc, NULL);
-    glCompileShader(fragmentShader);
-
-    // int success;
-    glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
-    if (!success) {
-        glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
-        std::cout << "ERROR::LOADSHADERS::COULD_NOT_COMPILE_FRAGMENT_SHADER" << "\n";
-        std::cout << infoLog << "\n";
-        LoadSuccess = false;
-    }
-
-    // Agregar al programa
-
-    program = glCreateProgram();
-    glAttachShader(program, vertexShader);
-    glAttachShader(program, fragmentShader);
-
-    glLinkProgram(program);
-
-    glGetProgramiv(program, GL_LINK_STATUS, &success);
-
-    if (!success) {
-        glGetProgramInfoLog(program, 512, NULL, infoLog);
-        std::cout << "ERROR::LOADSHADERS::COULD_NOT_LINK_PROGRAM" << "\n";
-        std::cout << infoLog << "\n";
-        LoadSuccess = false;
-    }
-
-
-    // EliminarShader
-
-    glUseProgram(0);
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
-    return LoadSuccess;
-}
 
 void updateInput(GLFWwindow* window) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
@@ -217,10 +120,8 @@ int main(void) {
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
     // Inicializar shaders
-    GLuint core_program;
-    if (!loadShaders(core_program)) {
-        glfwTerminate();
-    }
+    
+    Shader core_program((char*)"Resources\\Shaders\\vertex_core.glsl", (char*)"Resources\\Shaders\\fragment_core.glsl");
 
     // Crear buffers
 
@@ -265,26 +166,8 @@ int main(void) {
 
     // Texture init
 
-    int image_width, image_height, nrChannels;
-    unsigned char* image = stbi_load("Resources/Textures/Kirby.png", &image_width, &image_height, &nrChannels, 0);
-    GLuint texture0;
-    glGenTextures(1, &texture0);
-    glBindTexture(GL_TEXTURE_2D, texture0);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
-    if (image) {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image_width, image_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
-        glGenerateMipmap(GL_TEXTURE_2D);
-    }
-    else {
-        std::cout << "No se pudo cargar la imagen\n";
-    }
-    glActiveTexture(0);
-    glBindTexture(GL_TEXTURE_2D, 0);
-    stbi_image_free(image);
+    Texture texture0("Resources/Textures/Kirby.png", GL_TEXTURE_2D, 0);
+    //Texture texture1("Resources/Textures/cloud.png", GL_TEXTURE_2D);
 
     // Model Matrix
     glm::vec3 position(0.f);
@@ -318,21 +201,19 @@ int main(void) {
 
     // Luces
     glm::vec3 lightPos0(0.f, 0.f, 1.f);
+    // Inicializar uniforms
 
+    // Matrices de transformacion
 
-
-    // Mandar las matrices al shader
-
-    glUseProgram(core_program);
-    glUniformMatrix4fv(glGetUniformLocation(core_program, "ModelMatrix"), 1, GL_FALSE, glm::value_ptr(ModelMatrix));
-    glUniformMatrix4fv(glGetUniformLocation(core_program, "ViewMatrix"), 1, GL_FALSE, glm::value_ptr(ViewMatrix));
-    glUniformMatrix4fv(glGetUniformLocation(core_program, "ProjectionMatrix"), 1, GL_FALSE, glm::value_ptr(ProjectionMatrix));
+    core_program.setMat4fv(ModelMatrix, "ModelMatrix");
+    core_program.setMat4fv(ViewMatrix, "ViewMatrix");
+    core_program.setMat4fv(ProjectionMatrix, "ProjectionMatrix");
     
     // Mandar luz y posicion de la camara al shader
-    glUniform3fv(glGetUniformLocation(core_program, "lightPos0"), 1, glm::value_ptr(lightPos0));
-    glUniform3fv(glGetUniformLocation(core_program, "cameraPos"), 1, glm::value_ptr(camPosition));
 
-    glUseProgram(0);
+    core_program.setVec3f(lightPos0, "lightPos0");
+    core_program.setVec3f(camPosition, "cameraPos");
+
 
     // Main loop
     while (!glfwWindowShouldClose(window))
@@ -355,14 +236,16 @@ int main(void) {
 
         // Usar programa (shader)
 
-        glUseProgram(core_program);
 
         // Active texture
         
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texture0);
+        texture0.bind();
 
-        glUniform1i(glGetUniformLocation(core_program, "texture0"), 0);
+        core_program.set1i(0, "texture0");
+        //glUniform1i(glGetUniformLocation(core_program, "texture0"), 0);
+
+        core_program.use();
 
         // Update uniforms
 
@@ -376,8 +259,9 @@ int main(void) {
         ModelMatrix = glm::rotate(ModelMatrix, glm::radians(rotation.z), glm::vec3(0.f, 0.f, 1.f));
         ModelMatrix = glm::scale(ModelMatrix, scale);
 
-        //Actualizar
-        glUniformMatrix4fv(glGetUniformLocation(core_program, "ModelMatrix"), 1, GL_FALSE, glm::value_ptr(ModelMatrix));
+        //Actualizar        
+        core_program.setMat4fv(ModelMatrix, "ModelMatrix");
+        
 
         // Mantener relacionde aspecto
         glfwGetFramebufferSize(window, &framebufferWidth, &framebufferHeigth);
@@ -386,7 +270,7 @@ int main(void) {
         ProjectionMatrix = glm::perspective(glm::radians(fov), static_cast<float>(framebufferWidth) / framebufferHeigth, nearPlane, farPlane);
 
         // Actualizar
-        glUniformMatrix4fv(glGetUniformLocation(core_program, "ProjectionMatrix"), 1, GL_FALSE, glm::value_ptr(ProjectionMatrix));
+        core_program.setMat4fv(ProjectionMatrix, "ProjectionMatrix");
         
 
         // Bind vertex array object
@@ -394,7 +278,7 @@ int main(void) {
         glBindVertexArray(VAO);
 
         // Draw_draw
-
+        core_program.use();
         glDrawElements(GL_TRIANGLES, nrOfIndices, GL_UNSIGNED_INT, 0);
 
         // Draw_endDraw
@@ -402,12 +286,10 @@ int main(void) {
         glFlush();
 
         glBindVertexArray(0);
-        glUseProgram(0);
-        glActiveTexture(0);
+        texture0.unbind();
 
     }
     glfwDestroyWindow(window);
-    glDeleteProgram(core_program);
 
     glfwTerminate();
     return 0;
