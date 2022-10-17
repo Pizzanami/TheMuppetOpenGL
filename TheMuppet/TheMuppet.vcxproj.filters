@@ -35,12 +35,19 @@
     <ClInclude Include="SRC\Texture.h">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
-    <ClInclude Include="SRC\Material.h">
+    <ClInclude Include="SRC\Primitives.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="SRC\Mesh.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="SRC\Vertex.h">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Shaders\fragment_core.glsl" />
     <None Include="Resources\Shaders\vertex_core.glsl" />
+    <None Include="Resources\Shaders\fragment_core_texturas.glsl" />
   </ItemGroup>
 </Project>

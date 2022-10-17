@@ -18,14 +18,10 @@
 #include "Shader.h"
 #include "Texture.h"
 #include "Material.h"
+#include "Primitives.h"
+#include "Mesh.h"
+#include "Vertex.h"
 
-
-struct Vertex {
-	glm::vec3 position;
-	glm::vec3 color;
-	glm::vec2 texcoord;
-	glm::vec3 normal;
-};
 
 // Shaders
 // bool loadShaders(GLuint& program);

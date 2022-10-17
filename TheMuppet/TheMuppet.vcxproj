@@ -156,13 +156,16 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SRC\header.hpp" />
-    <ClInclude Include="SRC\Material.h" />
+    <ClInclude Include="SRC\Mesh.h" />
+    <ClInclude Include="SRC\Primitives.h" />
     <ClInclude Include="SRC\Shader.h" />
     <ClInclude Include="SRC\stb_image.h" />
     <ClInclude Include="SRC\Texture.h" />
+    <ClInclude Include="SRC\Vertex.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Shaders\fragment_core.glsl" />
+    <None Include="Resources\Shaders\fragment_core_texturas.glsl" />
     <None Include="Resources\Shaders\vertex_core.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

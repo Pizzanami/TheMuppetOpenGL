@@ -30,7 +30,7 @@ private:
 
 	glm::mat4 ModelMatrix;
 
-	void initVAO(){
+	void initVAO() {
 		//Create VAO
 		glCreateVertexArrays(1, &this->VAO);
 		glBindVertexArray(this->VAO);
@@ -41,7 +41,7 @@ private:
 		glBufferData(GL_ARRAY_BUFFER, this->nrOfVertices * sizeof(Vertex), this->vertexArray, GL_STATIC_DRAW);
 
 		//GEN EBO AND BIND AND SEND DATA
-		if (this->nrOfIndices > 0){
+		if (this->nrOfIndices > 0) {
 			glGenBuffers(1, &this->EBO);
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->EBO);
 			glBufferData(GL_ELEMENT_ARRAY_BUFFER, this->nrOfIndices * sizeof(GLuint), this->indexArray, GL_STATIC_DRAW);
@@ -65,13 +65,13 @@ private:
 		glBindVertexArray(0);
 	}
 
-	void updateUniforms(Shader* shader){
+	void updateUniforms(Shader* shader) {
 		shader->setMat4fv(this->ModelMatrix, "ModelMatrix");
 	}
 
-	void updateModelMatrix(){
+	void updateModelMatrix() {
 		this->ModelMatrix = glm::mat4(1.f);
-		this->ModelMatrix = glm::translate(this->ModelMatrix, this->origin);
+		this->ModelMatrix = glm::translate(this->ModelMatrix, this->position + this->origin);
 		this->ModelMatrix = glm::rotate(this->ModelMatrix, glm::radians(this->rotation.x), glm::vec3(1.f, 0.f, 0.f));
 		this->ModelMatrix = glm::rotate(this->ModelMatrix, glm::radians(this->rotation.y), glm::vec3(0.f, 1.f, 0.f));
 		this->ModelMatrix = glm::rotate(this->ModelMatrix, glm::radians(this->rotation.z), glm::vec3(0.f, 0.f, 1.f));
@@ -80,7 +80,7 @@ private:
 	}
 
 public:
-	Mesh(Vertex* vertexArray, const unsigned& nrOfVertices, GLuint* indexArray, const unsigned& nrOfIndices, glm::vec3 position = glm::vec3(0.f), glm::vec3 origin = glm::vec3(0.f), glm::vec3 rotation = glm::vec3(0.f), glm::vec3 scale = glm::vec3(1.f)){
+	Mesh(Vertex* vertexArray, const unsigned& nrOfVertices, GLuint* indexArray, const unsigned& nrOfIndices, glm::vec3 position = glm::vec3(0.f), glm::vec3 origin = glm::vec3(0.f), glm::vec3 rotation = glm::vec3(0.f), glm::vec3 scale = glm::vec3(1.f)) {
 		this->position = position;
 		this->origin = origin;
 		this->rotation = rotation;
@@ -109,7 +109,7 @@ public:
 		this->updateModelMatrix();
 	}
 
-	Mesh(Primitive* primitive, glm::vec3 position = glm::vec3(0.f), glm::vec3 origin = glm::vec3(0.f), glm::vec3 rotation = glm::vec3(0.f), glm::vec3 scale = glm::vec3(1.f)) {
+	Mesh(Primitive* primitive, glm::vec3 origin = glm::vec3(0.f), glm::vec3 position = glm::vec3(0.f), glm::vec3 rotation = glm::vec3(0.f), glm::vec3 scale = glm::vec3(1.f)) {
 		this->position = position;
 		this->origin = origin;
 		this->rotation = rotation;
@@ -123,12 +123,12 @@ public:
 		this->nrOfIndices = primitive->getNrOfIndices();
 
 		this->vertexArray = new Vertex[this->nrOfVertices];
-		for (size_t i = 0; i < this->nrOfVertices; i++){
+		for (size_t i = 0; i < this->nrOfVertices; i++) {
 			this->vertexArray[i] = primitive->getVertices()[i];
 		}
 
 		this->indexArray = new GLuint[this->nrOfIndices];
-		for (size_t i = 0; i < this->nrOfIndices; i++){
+		for (size_t i = 0; i < this->nrOfIndices; i++) {
 			this->indexArray[i] = primitive->getIndices()[i];
 		}
 
@@ -136,7 +136,7 @@ public:
 		this->updateModelMatrix();
 	}
 
-	Mesh(const Mesh& obj){
+	Mesh(const Mesh& obj) {
 		this->position = obj.position;
 		this->origin = obj.origin;
 		this->rotation = obj.rotation;
@@ -161,11 +161,11 @@ public:
 		this->updateModelMatrix();
 	}
 
-	~Mesh()	{
+	~Mesh() {
 		glDeleteVertexArrays(1, &this->VAO);
 		glDeleteBuffers(1, &this->VBO);
 
-		if (this->nrOfIndices > 0){
+		if (this->nrOfIndices > 0) {
 			glDeleteBuffers(1, &this->EBO);
 		}
 
@@ -176,36 +176,38 @@ public:
 	//Accessors
 
 	//Modifiers
-	void setPosition(const glm::vec3 position){
+	void setPosition(const glm::vec3 position) {
 		this->position = position;
-		this->origin += position;
 	}
 
-	void setOrigin(const glm::vec3 origin){
+	void setOrigin(const glm::vec3 origin) {
 		this->origin = origin;
 	}
 
-	void setRotation(const glm::vec3 rotation){
+	void setRotation(const glm::vec3 rotation) {
 		this->rotation = rotation;
 	}
 
-	void setScale(const glm::vec3 setScale){
+	void setScale(const glm::vec3 setScale) {
 		this->scale = scale;
 	}
 
 	//Functions
 
-	void move(const glm::vec3 position){
-		this->position += position;
-		this->origin += position;
+	void move(const glm::vec3 pos) {
+		this->position += pos;
+		this->origin += pos;
 	}
 
-	void rotate(const glm::vec3 rotation){
+	void rotate(const glm::vec3 rotation) {
 		this->rotation += rotation;
 	}
 
-	void scaleUp(const glm::vec3 scale){
+	void scaleUp(const glm::vec3 scale) {
 		this->scale += scale;
+		if (this->scale[0] < 0) {
+			this->scale = glm::vec3(0.f);
+		}
 	}
 
 	void reset() {
@@ -215,7 +217,7 @@ public:
 		this->scale = this->ORIGscale;
 	}
 
-	void render(Shader* shader){
+	void render(Shader* shader) {
 		//Update uniforms
 		this->updateModelMatrix();
 		this->updateUniforms(shader);
